@@ -19,7 +19,7 @@ export function ReferenceValidator<T>(
       throw Error('Not yet supported');
     }
     try {
-      const model = mongoose.model(field.options['ref']);
+      const model = mongoose.model(field.options['ref'],options.schema);
       field.validators.push({
         validator: checkRef(model),
         message: 'Invalid ref',
