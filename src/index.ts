@@ -1,32 +1,31 @@
 import mongoose from 'mongoose';
 
-const checkRef = function (model: mongoose.Model<any>) {
-  return async function (ids: mongoose.ObjectId[]) {
-    const count = await model.countDocuments({ _id: { $in: ids } });
-    console.log({ count });
-    return count == 1;
-  };
-};
-
 export function ReferenceValidator<T>(
   schema: mongoose.Schema<T>,
   options: any,
 ): void {
   for (const field of Object.values(schema.paths)) {
+    // console.log('field.options', field.options);
+    // console.log(`####`);
+    // console.log(schema);
     if (!field.options['ref']) continue;
 
     if (typeof field.options['ref'] !== 'string') {
       throw Error('Not yet supported');
     }
-    try {
-      const model = mongoose.model(field.options['ref'],options.schema);
-      field.validators.push({
-        validator: checkRef(model),
-        message: 'Invalid ref',
-      });
-    } catch (err) {
-      console.log({ err });
-      throw err;
-    }
+
+    schema.pre('save', async function hehe() {
+      try {
+        const model = mongoose.model(field.options['ref']);
+        console.log(model);
+        const id = this.get(field.path);
+        const count = await model.countDocuments({ _id: id });
+        console.log({ count });
+        if (count == 0) throw Error('invalid');
+      } catch (err) {
+        console.log({ err });
+        throw err;
+      }
+    });
   }
 }
