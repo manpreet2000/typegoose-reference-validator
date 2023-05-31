@@ -1,0 +1,33 @@
+{
+  "name": "typegoose-reference-validator",
+  "version": "1.0.0",
+  "description": "typegoose plugin function for reference validations",
+  "main": "dist/index.js",
+  "types":"dist/index.d.ts",
+  "files":[
+    "dist/**/*.js",
+    "dist/**/*.d.ts"
+  ],
+  "scripts": {
+    "build": "tsc -p tsconfig.build.json",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "typegoose-reference-validator"
+  },
+  "keywords": [
+    "typegoose",
+    "mongoose",
+    "reference"
+  ],
+  "author": "manpreet singh",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.2.5",
+    "typescript": "^5.0.4"
+  },
+  "dependencies": {
+    "mongoose": "^7.2.2"
+  }
+}
