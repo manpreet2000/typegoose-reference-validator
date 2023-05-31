@@ -14,7 +14,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "typegoose-reference-validator"
+    "url": "git+https://github.com/manpreet2000/typegoose-reference-validator.git"
   },
   "keywords": [
     "typegoose",
