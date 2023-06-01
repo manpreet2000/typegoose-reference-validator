@@ -16,7 +16,7 @@ export function ReferenceValidator<T>(
 
     schema.pre('save', async function hehe() {
       try {
-        const model = mongoose.model(field.options['ref']);
+        const model = this.collection.conn.model(field.options['ref']);
         console.log(model);
         const id = this.get(field.path);
         const count = await model.countDocuments({ _id: id });
