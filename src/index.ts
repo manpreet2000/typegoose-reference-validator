@@ -1,29 +1,38 @@
 import mongoose from 'mongoose';
 
-export function ReferenceValidator<T>(
-  schema: mongoose.Schema<T>,
+export function ReferenceValidator(
+  schema: mongoose.Schema<any>,
   options: any,
 ): void {
   for (const field of Object.values(schema.paths)) {
-    // console.log('field.options', field.options);
-    // console.log(`####`);
-    // console.log(schema);
-    if (!field.options['ref']) continue;
-
-    if (typeof field.options['ref'] !== 'string') {
-      throw Error('Not yet supported');
+    
+    if (!['Array', 'ObjectID'].includes(field.instance)) continue;
+    if (
+      (field.instance == 'Array' &&
+        !(field as Record<string, any>)['$embeddedSchemaType'].options[
+          'ref'
+        ]) ||
+      (field.instance == 'ObjectID' && !field.options['ref'])
+    ) {
+      continue;
     }
-
-    schema.pre('save', async function hehe() {
+    schema.pre('save', async function ReferenceValidatorPre(next) {
       try {
-        const model = this.collection.conn.model(field.options['ref']);
-        console.log(model);
-        const id = this.get(field.path);
-        const count = await model.countDocuments({ _id: id });
-        console.log({ count });
-        if (count == 0) throw Error('invalid');
+        let refName = '';
+        if (field.instance === 'Array')
+        refName = (field as Record<string, any>)['$embeddedSchemaType'].options[
+          'ref'
+        ];
+      else if (field.instance === 'ObjectID') refName = field.options['ref'];
+        if (refName === '') throw new Error(`Can not extract ref name from field ${field.path}`);
+      
+        const model = this.collection.conn.model(refName);
+        const ids = this.get(field.path);
+        const count = await model.countDocuments({ _id:{ $in: ids } });
+        const isValidated = Array.isArray(ids) ? count == ids.length : count == 1;
+        if (!isValidated) next(new Error(`Invalid reference from ${field.path} to ${refName}`));
       } catch (err) {
-        console.log({ err });
+        next(err)
         throw err;
       }
     });
